@@ -262,7 +262,7 @@ const App: React.FC = () => {
   const parseDescriptionForStats = (description: string): { [key: string]: { value: number } } => {
     const cleanDescription = description.replace(/<\/?b>/g, '');
     const stats: { [key: string]: { value: number } } = {};
-    const regex = /(체력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/g;
+    const regex = /(체력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|방어구 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/g;
     let match;
     while ((match = regex.exec(cleanDescription)) !== null) {
       const stat = match[1];
@@ -514,7 +514,7 @@ const App: React.FC = () => {
               {Object.keys(categoryTranslation).map((tag) => (
                 <button
                   key={tag}
-                  className={`filter-button ${activeFilter.value === tag ? 'active' : ''}`}
+                  className={`filter-button ${activeFilter.type === 'category' && activeFilter.value === tag ? 'active' : ''}`}
                   onClick={() => handleCategoryButtonClick(tag)}
                 >
                   {categoryTranslation[tag]}
@@ -528,7 +528,7 @@ const App: React.FC = () => {
               {jackOfAllTradesStats.map((stat) => (
                 <button
                   key={stat}
-                  className={`filter-button ${activeFilter.value === stat ? 'active' : ''}`}
+                  className={`filter-button ${activeFilter.type === 'jack' && activeFilter.value === stat ? 'active' : ''}`}
                   onClick={() => handleJackOfAllTradesFilterClick(stat)}
                 >
                   {statTranslation[stat]}
