@@ -182,6 +182,30 @@ const Overlay: React.FC<OverlayProps> = ({ children, position }) => {
   );
 };
 
+// Define the stripHtmlTags function before it is used
+const stripHtmlTags = (html: string): string => {
+  // Replace <br> tags with a placeholder
+  let withPlaceholder = html.replace(/<br\s*\/?>/gi, '###BR###');
+
+  // Replace <active> and <passive> tags with bold
+  withPlaceholder = withPlaceholder.replace(/<(active|passive|attention)>/gi, '###bold###');
+  withPlaceholder = withPlaceholder.replace(/<\/(active|passive|attention)>/gi, '###/bold###');
+
+  // Create a temporary div element
+  const div = document.createElement('div');
+  div.innerHTML = withPlaceholder;
+
+  // Get the text content
+  let stripped = div.textContent || div.innerText || '';
+
+  // Replace the placeholder back with <br> tags
+  stripped = stripped.replace(/###BR###/g, '<br>');
+  stripped = stripped.replace(/###bold###/g, '<b>');
+  stripped = stripped.replace(/###\/bold###/g, '</b>');
+
+  return stripped;
+};
+
 const App: React.FC = () => {
   const [items, setItems] = useState<[string, Item][]>([]);
   const [version, setVersion] = useState<string>('');
@@ -236,10 +260,11 @@ const App: React.FC = () => {
   };
 
   const parseDescriptionForStats = (description: string): { [key: string]: { value: number } } => {
+    const cleanDescription = description.replace(/<\/?b>/g, '');
     const stats: { [key: string]: { value: number } } = {};
     const regex = /(체력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/g;
     let match;
-    while ((match = regex.exec(description)) !== null) {
+    while ((match = regex.exec(cleanDescription)) !== null) {
       const stat = match[1];
       const value = parseInt(match[2], 10);
       const isPercentage = match[3] === '%';
@@ -312,18 +337,21 @@ const App: React.FC = () => {
   };
 
   const filterItems = (items: [string, Item][]) => {
-    if (!activeFilter.value) return items;
+    if (!activeFilter.value) return items.sort((a, b) => a[1].gold.total - b[1].gold.total);
 
+    let filteredItems;
     if (activeFilter.type === 'category') {
-      return items.filter(([id, item]) => item.tags.includes(activeFilter.value));
+      filteredItems = items.filter(([id, item]) => item.tags.includes(activeFilter.value));
     } else if (activeFilter.type === 'jack') {
-      return items.filter(([id, item]) => {
+      filteredItems = items.filter(([id, item]) => {
         const itemStats = parseDescriptionForStats(stripHtmlTags(item.description));
         return itemStats[statTranslation[activeFilter.value]];
       });
+    } else {
+      filteredItems = items;
     }
 
-    return items;
+    return filteredItems.sort((a, b) => a[1].gold.total - b[1].gold.total);
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -369,30 +397,6 @@ const App: React.FC = () => {
 
   const handleItemMouseLeave = () => {
     setHoveredItem(null);
-  };
-
-  // Function to strip HTML tags from a string, but keep <br> tags and replace active/passive/attention tags with bold
-  const stripHtmlTags = (html: string): string => {
-    // Replace <br> tags with a placeholder
-    let withPlaceholder = html.replace(/<br\s*\/?>/gi, '###BR###');
-
-    // Replace <active> and <passive> tags with bold
-    withPlaceholder = withPlaceholder.replace(/<(active|passive|attention)>/gi, '###bold###');
-    withPlaceholder = withPlaceholder.replace(/<\/(active|passive|attention)>/gi, '###/bold###');
-
-    // Create a temporary div element
-    const div = document.createElement('div');
-    div.innerHTML = withPlaceholder;
-
-    // Get the text content
-    let stripped = div.textContent || div.innerText || '';
-
-    // Replace the placeholder back with <br> tags
-    stripped = stripped.replace(/###BR###/g, '<br>');
-    stripped = stripped.replace(/###bold###/g, '<b>');
-    stripped = stripped.replace(/###\/bold###/g, '</b>');
-
-    return stripped;
   };
 
   return (
@@ -463,12 +467,12 @@ const App: React.FC = () => {
               <div className="jack-description">
                 <p style={{ fontSize: '0.75em' }}>
                   다재다능에서 얻는 능력치: 아이템으로 얻은 서로 다른 능력치 하나당 잭 중첩을 얻습니다. 
-                  중첩 하나당 스킬 가속이 1 증가합니다. 5회 및 10회 중첩시 각각 10 또는 25의 추가 적응형 능력치를 획득합니다.
+                  중첩 하나당 스킬 가속이 1 증가합니다. 5회 및 10회 중첩시 각각 10 또는 25의 추가 적응형 능력치를 획득했습니다.
                 </p>
               </div>
             </div>
             <div>
-              <strong>활성화 능력치:</strong>
+              <strong>활성화 능력:</strong>
               <ul className="active-stats-list">
                 {activeStats.map(stat => (
                   <li key={stat} className="active-stat-item">
@@ -490,8 +494,8 @@ const App: React.FC = () => {
           </div>
         </div>
         <div className="right-panel">
-          <h1>전체 아이템</h1>
           <div>
+            <h2 style={{ margin: 0 }}>전체 아이템</h2>
             <div className="search-container">
               <label htmlFor="search">검색:</label>
               <input
@@ -539,6 +543,7 @@ const App: React.FC = () => {
               <div
                 key={id}
                 className="item"
+                onClick={() => handleItemClick(id)}
                 onMouseEnter={(e) => handleItemMouseEnter(id, e)}
                 onMouseLeave={handleItemMouseLeave}
               >
@@ -555,12 +560,9 @@ const App: React.FC = () => {
                     {debug && <p>ID: {id}</p>}
                     <p><b>가격:</b> {item.gold.total} 골드</p>
                     <p><i>{item.plaintext}</i></p>
-                    <p><strong>효과</strong><br />{stripHtmlTags(item.description).split('<br>').map((line, index) => (
-                      <React.Fragment key={index}>
-                        {line}
-                        <br />
-                      </React.Fragment>
-                    ))}</p>
+                    <p><strong>효과</strong><br />
+                      <span dangerouslySetInnerHTML={{ __html: stripHtmlTags(item.description) }} />
+                    </p>
                     <div>
                       <strong>상위 아이템:</strong>
                       <div className="into-images">

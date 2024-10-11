@@ -27,6 +27,17 @@
     <title>League of Legends Item Builder</title> <!-- Title 설정 -->
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" /> <!-- Favicon 설정 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Add the CSP meta tag -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' https://apis.google.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      img-src 'self' data: https://ddragon.leagueoflegends.com;
+      connect-src 'self' https://ddragon.leagueoflegends.com;
+      font-src 'self' https://fonts.gstatic.com;
+      object-src 'none';
+      upgrade-insecure-requests;
+    ">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
