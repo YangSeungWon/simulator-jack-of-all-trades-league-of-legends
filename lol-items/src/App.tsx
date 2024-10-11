@@ -11,9 +11,9 @@ interface CategoryTranslation {
   [key: string]: string;
 }
 
-interface DetailedStatTranslation {
-  [key: string]: string;
-}
+// interface DetailedStatTranslation {
+//   [key: string]: string;
+// }
 
 interface Item {
   id: string;
@@ -91,73 +91,73 @@ const categoryTranslation: CategoryTranslation = {
   "GoldPer": "골드 획득"
 };
 
-const detailedStatTranslation: DetailedStatTranslation = {
-  'FlatHPPoolMod': '체력',
-  'rFlatHPModPerLevel': '레벨당 체력',
-  'FlatMPPoolMod': '마나',
-  'rFlatMPModPerLevel': '레벨당 마나',
-  'PercentHPPoolMod': '체력(%)',
-  'PercentMPPoolMod': '마나(%)',
-  'FlatHPRegenMod': '체력 재생',
-  'rFlatHPRegenModPerLevel': '레벨당 체력 재생',
-  'PercentHPRegenMod': '체력 재생(%)',
-  'FlatMPRegenMod': '마나 재생',
-  'rFlatMPRegenModPerLevel': '레벨당 마나 재생',
-  'PercentMPRegenMod': '마나 재생(%)',
-  'FlatArmorMod': '방어력',
-  'rFlatArmorModPerLevel': '레벨당 방어력',
-  'PercentArmorMod': '방어력(%)',
-  'rFlatArmorPenetrationMod': '방어구 관통력',
-  'rFlatArmorPenetrationModPerLevel': '레벨당 방어구 관통력',
-  'rPercentArmorPenetrationMod': '방어구 관통력(%)',
-  'rPercentArmorPenetrationModPerLevel': '레벨당 방어구 관통력(%)',
-  'FlatPhysicalDamageMod': '공격력',
-  'rFlatPhysicalDamageModPerLevel': '레벨당 공격력',
-  'PercentPhysicalDamageMod': '공격력(%)',
-  'FlatMagicDamageMod': '주문력',
-  'rFlatMagicDamageModPerLevel': '레벨당 주문력',
-  'PercentMagicDamageMod': '주문력(%)',
-  'FlatMovementSpeedMod': '이동 속도',
-  'rFlatMovementSpeedModPerLevel': '레벨당 이동 속도',
-  'PercentMovementSpeedMod': '이동 속도(%)',
-  'rPercentMovementSpeedModPerLevel': '레벨당 동 속도(%)',
-  'FlatAttackSpeedMod': '공격 속도',
-  'PercentAttackSpeedMod': '공격 도(%)',
-  'rPercentAttackSpeedModPerLevel': '레벨당 공격 속도(%)',
-  'rFlatDodgeMod': '회피',
-  'rFlatDodgeModPerLevel': '레벨당 회피',
-  'PercentDodgeMod': '회피(%)',
-  'FlatCritChanceMod': '치명타 확률',
-  'rFlatCritChanceModPerLevel': '레벨당 치명타 확률',
-  'PercentCritChanceMod': '치명타 확률(%)',
-  'FlatCritDamageMod': '명타 피해',
-  'rFlatCritDamageModPerLevel': '레벨당 치명타 피해',
-  'PercentCritDamageMod': '명타 피해(%)',
-  'FlatBlockMod': '방어',
-  'PercentBlockMod': '방어(%)',
-  'FlatSpellBlockMod': '마법 저항력',
-  'rFlatSpellBlockModPerLevel': '레벨당 마법 저항력',
-  'PercentSpellBlockMod': '마법 저항력(%)',
-  'FlatEXPBonus': '경험치 보너스',
-  'PercentEXPBonus': '경험치 보너스(%)',
-  'rPercentCooldownMod': '재사용 대기시간 감소(%)',
-  'rPercentCooldownModPerLevel': '레벨당 재사용 대기시간 감소(%)',
-  'rFlatTimeDeadMod': '사망 시간 감소',
-  'rFlatTimeDeadModPerLevel': '레벨당 사망 시간 소',
-  'rPercentTimeDeadMod': '사망 시간 감소(%)',
-  'rPercentTimeDeadModPerLevel': '레벨당 사망 시간 감소(%)',
-  'rFlatGoldPer10Mod': '10초당 골드',
-  'rFlatMagicPenetrationMod': '마법 관통력',
-  'rFlatMagicPenetrationModPerLevel': '레벨당 마법 관통력',
-  'rPercentMagicPenetrationMod': '마법 관통(%)',
-  'rPercentMagicPenetrationModPerLevel': '레벨당 마법 관통력(%)',
-  'FlatEnergyRegenMod': '에너지 재생',
-  'rFlatEnergyRegenModPerLevel': '레벨당 에너지 재생',
-  'FlatEnergyPoolMod': '에너지',
-  'rFlatEnergyModPerLevel': '레벨당 에너지',
-  'PercentLifeStealMod': '생명력 흡수(%)',
-  'PercentSpellVampMod': '주문 흡혈(%)'
-};
+// const detailedStatTranslation: DetailedStatTranslation = {
+//   'FlatHPPoolMod': '체력',
+//   'rFlatHPModPerLevel': '레벨당 체력',
+//   'FlatMPPoolMod': '마나',
+//   'rFlatMPModPerLevel': '레벨당 마나',
+//   'PercentHPPoolMod': '체력(%)',
+//   'PercentMPPoolMod': '마나(%)',
+//   'FlatHPRegenMod': '체력 재생',
+//   'rFlatHPRegenModPerLevel': '레벨당 체력 재생',
+//   'PercentHPRegenMod': '체력 재생(%)',
+//   'FlatMPRegenMod': '마나 재생',
+//   'rFlatMPRegenModPerLevel': '레벨당 마나 재생',
+//   'PercentMPRegenMod': '마나 재생(%)',
+//   'FlatArmorMod': '방어력',
+//   'rFlatArmorModPerLevel': '레벨당 방어력',
+//   'PercentArmorMod': '방어력(%)',
+//   'rFlatArmorPenetrationMod': '방어구 관통력',
+//   'rFlatArmorPenetrationModPerLevel': '레벨당 방어구 관통력',
+//   'rPercentArmorPenetrationMod': '방어구 관통력(%)',
+//   'rPercentArmorPenetrationModPerLevel': '레벨당 방어구 관통력(%)',
+//   'FlatPhysicalDamageMod': '공격력',
+//   'rFlatPhysicalDamageModPerLevel': '레벨당 공격력',
+//   'PercentPhysicalDamageMod': '공격력(%)',
+//   'FlatMagicDamageMod': '주문력',
+//   'rFlatMagicDamageModPerLevel': '레벨당 주문력',
+//   'PercentMagicDamageMod': '주문력(%)',
+//   'FlatMovementSpeedMod': '이동 속도',
+//   'rFlatMovementSpeedModPerLevel': '레벨당 이동 속도',
+//   'PercentMovementSpeedMod': '이동 속도(%)',
+//   'rPercentMovementSpeedModPerLevel': '레벨당 동 속도(%)',
+//   'FlatAttackSpeedMod': '공격 속도',
+//   'PercentAttackSpeedMod': '공격 도(%)',
+//   'rPercentAttackSpeedModPerLevel': '레벨당 공격 속도(%)',
+//   'rFlatDodgeMod': '회피',
+//   'rFlatDodgeModPerLevel': '레벨당 회피',
+//   'PercentDodgeMod': '회피(%)',
+//   'FlatCritChanceMod': '치명타 확률',
+//   'rFlatCritChanceModPerLevel': '레벨당 치명타 확률',
+//   'PercentCritChanceMod': '치명타 확률(%)',
+//   'FlatCritDamageMod': '명타 피해',
+//   'rFlatCritDamageModPerLevel': '레벨당 치명타 피해',
+//   'PercentCritDamageMod': '명타 피해(%)',
+//   'FlatBlockMod': '방어',
+//   'PercentBlockMod': '방어(%)',
+//   'FlatSpellBlockMod': '마법 저항력',
+//   'rFlatSpellBlockModPerLevel': '레벨당 마법 저항력',
+//   'PercentSpellBlockMod': '마법 저항력(%)',
+//   'FlatEXPBonus': '경험치 보너스',
+//   'PercentEXPBonus': '경험치 보너스(%)',
+//   'rPercentCooldownMod': '재사용 대기시간 감소(%)',
+//   'rPercentCooldownModPerLevel': '레벨당 재사용 대기시간 감소(%)',
+//   'rFlatTimeDeadMod': '사망 시간 감소',
+//   'rFlatTimeDeadModPerLevel': '레벨당 사망 시간 소',
+//   'rPercentTimeDeadMod': '사망 시간 감소(%)',
+//   'rPercentTimeDeadModPerLevel': '레벨당 사망 시간 감소(%)',
+//   'rFlatGoldPer10Mod': '10초당 골드',
+//   'rFlatMagicPenetrationMod': '마법 관통력',
+//   'rFlatMagicPenetrationModPerLevel': '레벨당 마법 관통력',
+//   'rPercentMagicPenetrationMod': '마법 관통(%)',
+//   'rPercentMagicPenetrationModPerLevel': '레벨당 마법 관통력(%)',
+//   'FlatEnergyRegenMod': '에너지 재생',
+//   'rFlatEnergyRegenModPerLevel': '레벨당 에너지 재생',
+//   'FlatEnergyPoolMod': '에너지',
+//   'rFlatEnergyModPerLevel': '레벨당 에너지',
+//   'PercentLifeStealMod': '생명력 흡수(%)',
+//   'PercentSpellVampMod': '주문 흡혈(%)'
+// };
 
 const Overlay: React.FC<OverlayProps> = ({ children, position }) => {
   return ReactDOM.createPortal(
@@ -420,7 +420,6 @@ const App: React.FC = () => {
                     );
                   }
 
-                  const item = items.find(([itemId]) => itemId === id);
                   return (
                     <div key={index} className="selected-item" onClick={() => handleSelectedItemRemove(index)}>
                       <img
