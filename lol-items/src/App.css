@@ -1,0 +1,354 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.header {
+  background-color: #444;
+  color: #fff;
+  padding: 20px;
+  border-bottom: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.app-icon {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+}
+
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 25%;
+  padding: 10px;
+  height: 150vh; /* Set a fixed height */
+  border-right: 1px solid #ccc;
+}
+
+.selected-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.selected-item {
+  border: 2px solid #514b37; /* Add a border to selected items */
+  cursor: pointer; /* Add this line to change the cursor to a pointer */
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.selected-item img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.selected-items-container {
+  background-color: #0e1617; /* Slightly darker background for the item slots */
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(91, 76, 11, 0.1); /* Optional: Add a subtle shadow */
+}
+
+.right-panel {
+  flex: 1;
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Disable horizontal scrolling */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+}
+
+.filter-label input {
+  margin-right: 5px;
+}
+
+.item-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.item {
+  flex: 1 1 calc(33.333% - 20px); /* Adjusts to fit three items per row with gaps */
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  transition: transform 0.2s;
+  max-width: calc(33.333% - 20px);
+  cursor: pointer; /* Add this line to change the cursor to a pointer */
+}
+
+.item:hover {
+  transform: scale(1.05);
+}
+
+.item-details {
+  margin-top: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-wrap: break-word; /* Ensures long words break and wrap to the next line */
+  white-space: pre-wrap; /* Preserves whitespace and line breaks */
+}
+
+.item:hover .item-details {
+  display: block;
+}
+
+.item {
+  position: relative;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+.search-container label {
+  margin-right: 10px;
+  font-size: 16px;
+  color: #333;
+  white-space: nowrap;
+}
+
+.search-container input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.search-container input[type="text"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.from-item {
+  width: 48px;
+  height: 48px;
+}
+
+.into-item {
+  width: 48px;
+  height: 48px;
+}
+
+.empty-slot {
+  width: 64px; /* Set a fixed width */
+  height: 64px; /* Set a fixed height to make it square */
+  border: 2px solid #514b37; /* Add a border to selected items */
+  gap: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9; /* Optional: Add a background color */
+  cursor: not-allowed;
+}
+
+.slot-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Create 3 columns */
+  grid-template-rows: repeat(3, 1fr); /* Create 3 rows */
+  gap: 15px; /* Optional: Add space between slots */
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.reset-button {
+  width: 60px; /* Adjust size as needed */
+  height: 30px; /* Make it square */
+  background-color: #3b523c; /* Green background */
+  color: white; /* White text */
+  border: none; /* Remove border */
+  border-radius: 8px; /* Rounded corners */
+  font-size: 20px; /* Larger font size for emoji */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.reset-button:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+.filter-button {
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-size: 16px;
+  transition: color 0.1s;
+}
+
+.filter-button:hover {
+  background-color: #e0e0e0;
+}
+
+.filter-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.filter-button.active:hover {
+  background-color: #003d80;
+}
+
+.colloq-name {
+  color: gray;
+  font-size: 0.7em; /* Adjust the size if needed */
+}
+
+.jack-image {
+  width: 100px;
+  height: 100px;
+}
+
+.App.simplified .item-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.App.simplified .item {
+  width: auto; /* Adjust width to fit the content */
+  margin: 0; /* Remove inner margin */
+  max-width: none; /* Remove max-width restriction */
+  flex: 0 0 auto;
+  padding: 0;
+  display: inline-block; /* Change from flex to inline-block */
+}
+
+.App.simplified .item-details {
+  display: none; /* Hide item details in simplified view */
+}
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.some-class {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.active-stats-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.active-stat-item {
+  color: green;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.inactive-stats-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.inactive-stat-item {
+  color: rgb(121, 0, 0);
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.stat-icon {
+  margin-right: 5px;
+}
+
+.total-stats-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.total-stat-item {
+  color: #333; /* Dark gray for readability */
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.stat-icon {
+  margin-right: 5px;
+  color: #007bff; /* Blue color for the icon */
+}
+
+.empty-slots-message {
+  color: #ff6347; /* A softer red (Tomato) for less intensity */
+  font-weight: normal; /* Normal font weight for less emphasis */
+  margin-top: 5px; /* Slightly smaller space above the message */
+  text-align: left; /* Align text to the left */
+  font-size: 18px; /* Slightly smaller font size */
+}
+
+.jack-container {
+  display: flex;
+  align-items: center;
+}
+
+.jack-image {
+  margin-right: 20px; /* Adjust spacing as needed */
+}
+
+.jack-description {
+  max-width: 400px; /* Adjust width as needed */
+}
