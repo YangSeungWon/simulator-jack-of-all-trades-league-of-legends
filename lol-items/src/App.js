@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
+import ReactDOM from 'react-dom';
 
 const statTranslation = {
   'Health': '체력',
@@ -101,7 +102,7 @@ const detailedStatTranslation = {
   'PercentMovementSpeedMod': '이동 속도(%)',
   'rPercentMovementSpeedModPerLevel': '레벨당 동 속도(%)',
   'FlatAttackSpeedMod': '공격 속도',
-  'PercentAttackSpeedMod': '공격 속도(%)',
+  'PercentAttackSpeedMod': '공격 도(%)',
   'rPercentAttackSpeedModPerLevel': '레벨당 공격 속도(%)',
   'rFlatDodgeMod': '회피',
   'rFlatDodgeModPerLevel': '레벨당 회피',
@@ -109,7 +110,7 @@ const detailedStatTranslation = {
   'FlatCritChanceMod': '치명타 확률',
   'rFlatCritChanceModPerLevel': '레벨당 치명타 확률',
   'PercentCritChanceMod': '치명타 확률(%)',
-  'FlatCritDamageMod': '치명타 피해',
+  'FlatCritDamageMod': '명타 피해',
   'rFlatCritDamageModPerLevel': '레벨당 치명타 피해',
   'PercentCritDamageMod': '명타 피해(%)',
   'FlatBlockMod': '방어',
@@ -149,16 +150,28 @@ function translateItemStats(itemStats) {
   return translatedStats;
 }
 
+const Overlay = ({ children, position }) => {
+  return ReactDOM.createPortal(
+    <div
+      className="item-details-overlay"
+      style={{ left: `${position.x}px`, top: `${position.y}px` }}
+    >
+      {children}
+    </div>,
+    document.body
+  );
+};
+
 function App() {
   const [items, setItems] = useState([]);
   const [version, setVersion] = useState('');
   const [selectedItems, setSelectedItems] = useState(Array(6).fill(null));
   const [debug, setDebug] = useState(false);
-  const [sortTag, setSortTag] = useState('');
-  const [filterTags, setFilterTags] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [simplifiedView, setSimplifiedView] = useState(false);
-  const [activeFilter, setActiveFilter] = useState(''); // New state to track active filter
+  const [activeFilter, setActiveFilter] = useState({ type: '', value: '' });
+  const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
+  const [hoveredItem, setHoveredItem] = useState(null);
+  const itemListRef = useRef(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -183,7 +196,6 @@ function App() {
   }, []);
 
   const handleItemClick = (id) => {
-    console.log(`Adding item with ID: ${id}`);
     setSelectedItems((prevSelectedItems) => {
       const index = prevSelectedItems.findIndex(item => item === null);
       if (index !== -1) {
@@ -196,7 +208,6 @@ function App() {
   };
 
   const handleSelectedItemRemove = (index) => {
-    console.log(`Removing item at index: ${index}`);
     setSelectedItems((prevSelectedItems) => {
       const newSelectedItems = [...prevSelectedItems];
       newSelectedItems[index] = null;
@@ -206,7 +217,7 @@ function App() {
 
   const parseDescriptionForStats = (description) => {
     const stats = {};
-    const regex = /(체력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/g;
+    const regex = /(력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/g;
     let match;
     while ((match = regex.exec(description)) !== null) {
       const stat = match[1];
@@ -239,7 +250,7 @@ function App() {
         const item = items.find(([itemId]) => itemId === id);
         if (item && item[1].description) {
           const itemStats = parseDescriptionForStats(stripHtmlTags(item[1].description));
-          Object.entries(itemStats).forEach(([stat, value]) => {
+          Object.entries(itemStats).forEach(([stat, { value }]) => {
             if (totalStats[stat]) {
               totalStats[stat] += value;
             } else {
@@ -259,60 +270,46 @@ function App() {
     const inactiveStats = jackOfAllTradesStats.filter(stat => !totalStats[statTranslation[stat]]);
     
     const stackCount = activeStats.length;
-    const abilityHaste = stackCount; // 1 ability haste per stack
+    const abilityHaste = stackCount;
     const adaptiveBonus = stackCount >= 10 ? 25 : stackCount >= 5 ? 10 : 0;
 
     return { activeStats, inactiveStats, stackCount, abilityHaste, adaptiveBonus };
   };
 
   const { activeStats, inactiveStats, stackCount, abilityHaste, adaptiveBonus } = calculateJackOfAllTrades();
+  const totalStats = calculateTotalStats(); // Define totalStats here
 
-  // Function to sort items based on selected tag
-  const sortItemsByTag = (items, tag) => {
-    if (!tag) return items;
-    return items.sort(([idA, itemA], [idB, itemB]) => {
-      const hasTagA = itemA.tags.includes(tag);
-      const hasTagB = itemB.tags.includes(tag);
-      if (hasTagA && !hasTagB) return -1;
-      if (!hasTagA && hasTagB) return 1;
-      return 0;
-    });
-  };
-
-  // Function to handle button click for category filter
   const handleCategoryButtonClick = (tag) => {
-    setActiveFilter((prevFilter) => (prevFilter === tag ? '' : tag));
+    setActiveFilter((prevFilter) => 
+      prevFilter.type === 'category' && prevFilter.value === tag ? { type: '', value: '' } : { type: 'category', value: tag }
+    );
   };
 
-  // Function to handle Jack of All Trades filter click
   const handleJackOfAllTradesFilterClick = (stat) => {
-    setActiveFilter((prevFilter) => (prevFilter === stat ? '' : stat));
+    setActiveFilter((prevFilter) => 
+      prevFilter.type === 'jack' && prevFilter.value === stat ? { type: '', value: '' } : { type: 'jack', value: stat }
+    );
   };
 
-  // Function to filter items based on active filter
   const filterItems = (items) => {
-    if (!activeFilter) return items;
+    if (!activeFilter.value) return items;
 
-    if (categoryTranslation[activeFilter]) {
-      // If the active filter is a category tag
-      return items.filter(([id, item]) => item.tags.includes(activeFilter));
-    } else if (jackOfAllTradesStats.includes(activeFilter)) {
-      // If the active filter is a Jack of All Trades stat
+    if (activeFilter.type === 'category') {
+      return items.filter(([id, item]) => item.tags.includes(activeFilter.value));
+    } else if (activeFilter.type === 'jack') {
       return items.filter(([id, item]) => {
         const itemStats = parseDescriptionForStats(stripHtmlTags(item.description));
-        return itemStats[statTranslation[activeFilter]];
+        return itemStats[statTranslation[activeFilter.value]];
       });
     }
 
     return items;
   };
 
-  // Function to handle search input changes
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  // Function to filter items based on search query
   const filterItemsBySearch = (items, query) => {
     if (!query) return items;
     const lowerCaseQuery = query.toLowerCase();
@@ -327,24 +324,48 @@ function App() {
     setSelectedItems(Array(6).fill(null));
   };
 
-  const totalStats = calculateTotalStats();
+  const handleItemMouseEnter = (id, event) => {
+    setHoveredItem(id);
+
+    const itemElement = event.currentTarget;
+    const rect = itemElement.getBoundingClientRect();
+
+    const overlayWidth = 400;
+    const overlayHeight = 200;
+
+    let x = rect.right - 5;
+    let y = rect.top;
+
+    if (x + overlayWidth > window.innerWidth) {
+      x = rect.left - overlayWidth - 10;
+    }
+
+    if (y + overlayHeight > window.innerHeight) {
+      y = window.innerHeight - overlayHeight - 10;
+    }
+
+    setOverlayPosition({ x, y });
+  };
+
+  const handleItemMouseLeave = () => {
+    setHoveredItem(null);
+  };
 
   return (
-    <div className={`App ${simplifiedView ? 'simplified' : ''}`}>
+    <div className="App">
       <div className="header">
         <img src="logo512.png" alt="App Icon" className="app-icon" />
         <h1>League of Legends - Item Builder (다재다능 시뮬레이터)</h1>
       </div>
       <div className="content">
         <div className="left-panel">
-          <div className="selected-items-container"> {/* New container for styling */}
+          <div className="selected-items-container">
             <div className="selected-items slot-container">
               {selectedItems
                 .map((id, index) => {
                   if (id === null) {
                     return (
                       <div key={index} className="empty-slot">
-                        {/* You can add a placeholder or just leave it empty */}
                       </div>
                     );
                   }
@@ -360,17 +381,13 @@ function App() {
                   );
                 })
                 .sort((a, b) => {
-                  // Sort only the non-null items by price
                   if (a.props.className === 'empty-slot') return 1;
                   if (b.props.className === 'empty-slot') return -1;
                   
                   const itemA = items.find(([itemId]) => itemId === a.key);
                   const itemB = items.find(([itemId]) => itemId === b.key);
 
-                  if (!itemA || !itemB) return 0; // Handle undefined items
-
-                  console.log(`Comparing items: ${itemA[1].name} and ${itemB[1].name}`);
-                  console.log(`Prices: ${itemA[1].gold.total} and ${itemB[1].gold.total}`);
+                  if (!itemA || !itemB) return 0;
 
                   return itemB[1].gold.total - itemA[1].gold.total;
                 })}
@@ -397,9 +414,9 @@ function App() {
             <p>
               현재 중첩: <strong>{stackCount}</strong> (스킬 가속: <strong>{abilityHaste}</strong>, 추가 적응형 능력치: <strong>{adaptiveBonus}</strong>)
             </p>
-            <div className="jack-container"> {/* New container for flexbox */}
+            <div className="jack-container">
               <img src="jack.webp" alt="Jack of All Trades" className="jack-image" />
-              <div className="jack-description"> {/* New div for description */}
+              <div className="jack-description">
                 <p style={{ fontSize: '0.75em' }}>
                   다재다능에서 얻는 능력치: 아이템으로 얻은 서로 다른 능력치 하나당 잭 중첩을 얻습니다. 
                   중첩 하나당 스킬 가속이 1 증가합니다. 5회 및 10회 중첩시 각각 10 또는 25의 추가 적응형 능력치를 획득합니다.
@@ -441,9 +458,6 @@ function App() {
                 onChange={handleSearchChange}
                 placeholder="아이템 이름이나 다른 이름(예: 똥신)으로 검색"
               />
-              <button onClick={() => setSimplifiedView(!simplifiedView)}>
-                {simplifiedView ? '상세 보기' : '간소화 보기'}
-              </button>
             </div>
           </div>
           <div>
@@ -452,7 +466,7 @@ function App() {
               {Object.keys(categoryTranslation).map((tag) => (
                 <button
                   key={tag}
-                  className={`filter-button ${activeFilter === tag ? 'active' : ''}`}
+                  className={`filter-button ${activeFilter.value === tag ? 'active' : ''}`}
                   onClick={() => handleCategoryButtonClick(tag)}
                 >
                   {categoryTranslation[tag]}
@@ -466,7 +480,7 @@ function App() {
               {jackOfAllTradesStats.map((stat) => (
                 <button
                   key={stat}
-                  className={`filter-button ${activeFilter === stat ? 'active' : ''}`}
+                  className={`filter-button ${activeFilter.value === stat ? 'active' : ''}`}
                   onClick={() => handleJackOfAllTradesFilterClick(stat)}
                 >
                   {statTranslation[stat]}
@@ -474,17 +488,22 @@ function App() {
               ))}
             </div>
           </div>
-          <div className="item-list">
+          <div className="item-list" ref={itemListRef}>
             {filterItems(
               filterItemsBySearch(items, searchQuery)
             ).map(([id, item]) => (
-              <div key={id} className="item" onClick={() => handleItemClick(id)}>
+              <div
+                key={id}
+                className="item"
+                onMouseEnter={(e) => handleItemMouseEnter(id, e)}
+                onMouseLeave={handleItemMouseLeave}
+              >
                 <img
                   src={`https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${id}.png`}
                   alt={item.name}
                 />
-                {!simplifiedView && (
-                  <div className="item-details">
+                {hoveredItem === id && (
+                  <Overlay position={overlayPosition}>
                     <h2>
                       {item.name}<br />
                       {item.colloq && <span className="colloq-name"> ({item.colloq})</span>}
@@ -517,7 +536,7 @@ function App() {
                       </div>
                     </div>
                     <div>
-                      <strong>하위 이템:</strong>
+                      <strong>하위 아이템:</strong>
                       <div className="from-images">
                         {item.from ? item.from
                           .filter(fromId => {
@@ -534,7 +553,7 @@ function App() {
                           )) : <p>없음</p>}
                       </div>
                     </div>
-                  </div>
+                  </Overlay>
                 )}
               </div>
             ))}

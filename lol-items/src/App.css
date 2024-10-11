@@ -3,6 +3,7 @@
   flex-direction: column;
   height: 100vh;
 }
+
 .header {
   background-color: #444;
   color: #fff;
@@ -36,8 +37,9 @@
   justify-content: space-between;
   width: 25%;
   padding: 10px;
-  height: 150vh; /* Set a fixed height */
+  height: 150vh;
   border-right: 1px solid #ccc;
+  overflow: visible; /* 추가 */
 }
 
 .selected-items {
@@ -47,8 +49,8 @@
 }
 
 .selected-item {
-  border: 2px solid #514b37; /* Add a border to selected items */
-  cursor: pointer; /* Add this line to change the cursor to a pointer */
+  border: 2px solid #514b37;
+  cursor: pointer;
   width: 64px;
   height: 64px;
   display: flex;
@@ -64,18 +66,19 @@
 }
 
 .selected-items-container {
-  background-color: #0e1617; /* Slightly darker background for the item slots */
+  background-color: #0e1617;
   padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(91, 76, 11, 0.1); /* Optional: Add a subtle shadow */
+  box-shadow: 0 2px 4px rgba(91, 76, 11, 0.1);
 }
 
 .right-panel {
   flex: 1;
-  overflow-y: auto; /* Enable vertical scrolling */
-  overflow-x: hidden; /* Disable horizontal scrolling */
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px;
   box-sizing: border-box;
+  overflow: visible; /* 추가 */
 }
 
 .filter-options {
@@ -97,19 +100,23 @@
 .item-list {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-around;
   gap: 10px;
 }
 
 .item {
-  flex: 1 1 calc(33.333% - 20px); /* Adjusts to fit three items per row with gaps */
-  box-sizing: border-box;
+  position: relative; /* Ensure the parent has a position set */
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  display: inline-block;
   border: 1px solid #ccc;
   border-radius: 4px;
-  padding: 10px;
   background-color: #f9f9f9;
   transition: transform 0.2s;
-  max-width: calc(33.333% - 20px);
-  cursor: pointer; /* Add this line to change the cursor to a pointer */
+  cursor: pointer;
+  z-index: 1; /* 추가 */
 }
 
 .item:hover {
@@ -120,17 +127,7 @@
   margin-top: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  word-wrap: break-word; /* Ensures long words break and wrap to the next line */
-  white-space: pre-wrap; /* Preserves whitespace and line breaks */
-}
-
-.item:hover .item-details {
-  display: block;
-}
-
-.item {
-  position: relative;
+  white-space: pre-wrap;
 }
 
 input[type="text"] {
@@ -154,6 +151,7 @@ input[type="text"]:focus {
   align-items: center;
   margin: 10px 0;
 }
+
 .search-container label {
   margin-right: 10px;
   font-size: 16px;
@@ -161,48 +159,22 @@ input[type="text"]:focus {
   white-space: nowrap;
 }
 
-.search-container input[type="text"] {
-  width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  transition: border-color 0.3s ease;
-}
-
-.search-container input[type="text"]:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-.from-item {
-  width: 48px;
-  height: 48px;
-}
-
-.into-item {
-  width: 48px;
-  height: 48px;
-}
-
 .empty-slot {
-  width: 64px; /* Set a fixed width */
-  height: 64px; /* Set a fixed height to make it square */
-  border: 2px solid #514b37; /* Add a border to selected items */
-  gap: 15px;
+  width: 64px;
+  height: 64px;
+  border: 2px solid #514b37;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f9f9f9; /* Optional: Add a background color */
+  background-color: #f9f9f9;
   cursor: not-allowed;
 }
 
 .slot-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Create 3 columns */
-  grid-template-rows: repeat(3, 1fr); /* Create 3 rows */
-  gap: 15px; /* Optional: Add space between slots */
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 15px;
 }
 
 .bold {
@@ -210,22 +182,22 @@ input[type="text"]:focus {
 }
 
 .reset-button {
-  width: 60px; /* Adjust size as needed */
-  height: 30px; /* Make it square */
-  background-color: #3b523c; /* Green background */
-  color: white; /* White text */
-  border: none; /* Remove border */
-  border-radius: 8px; /* Rounded corners */
-  font-size: 20px; /* Larger font size for emoji */
+  width: 60px;
+  height: 30px;
+  background-color: #3b523c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer; /* Pointer cursor on hover */
-  transition: background-color 0.3s ease; /* Smooth transition */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .reset-button:hover {
-  background-color: #45a049; /* Darker green on hover */
+  background-color: #45a049;
 }
 
 .filter-button {
@@ -253,91 +225,7 @@ input[type="text"]:focus {
 
 .colloq-name {
   color: gray;
-  font-size: 0.7em; /* Adjust the size if needed */
-}
-
-.jack-image {
-  width: 100px;
-  height: 100px;
-}
-
-.App.simplified .item-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-}
-
-.App.simplified .item {
-  width: auto; /* Adjust width to fit the content */
-  margin: 0; /* Remove inner margin */
-  max-width: none; /* Remove max-width restriction */
-  flex: 0 0 auto;
-  padding: 0;
-  display: inline-block; /* Change from flex to inline-block */
-}
-
-.App.simplified .item-details {
-  display: none; /* Hide item details in simplified view */
-}
-
-body {
-  font-family: 'Noto Sans KR', sans-serif;
-}
-
-.some-class {
-  font-family: 'Noto Sans KR', sans-serif;
-}
-
-.active-stats-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.active-stat-item {
-  color: green;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.inactive-stats-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.inactive-stat-item {
-  color: rgb(121, 0, 0);
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.stat-icon {
-  margin-right: 5px;
-}
-
-.total-stats-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.total-stat-item {
-  color: #333; /* Dark gray for readability */
-  font-weight: bold;
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-}
-
-.stat-icon {
-  margin-right: 5px;
-  color: #007bff; /* Blue color for the icon */
-}
-
-.empty-slots-message {
-  color: #ff6347; /* A softer red (Tomato) for less intensity */
-  font-weight: normal; /* Normal font weight for less emphasis */
-  margin-top: 5px; /* Slightly smaller space above the message */
-  text-align: left; /* Align text to the left */
-  font-size: 18px; /* Slightly smaller font size */
+  font-size: 0.7em;
 }
 
 .jack-container {
@@ -346,9 +234,64 @@ body {
 }
 
 .jack-image {
-  margin-right: 20px; /* Adjust spacing as needed */
+  width: 100px;
+  height: 100px;
+  margin-right: 20px;
 }
 
 .jack-description {
-  max-width: 400px; /* Adjust width as needed */
+  max-width: 400px;
+}
+
+body, .some-class {
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.active-stats-list, .inactive-stats-list, .total-stats-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.active-stat-item, .inactive-stat-item, .total-stat-item {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.active-stat-item {
+  color: green;
+}
+
+.inactive-stat-item {
+  color: rgb(121, 0, 0);
+}
+
+.total-stat-item {
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.stat-icon {
+  margin-right: 5px;
+  color: #007bff;
+}
+
+.empty-slots-message {
+  color: #ff6347;
+  font-weight: normal;
+  margin-top: 5px;
+  text-align: left;
+  font-size: 18px;
+}
+
+.item-details-overlay {
+  position: fixed; /* fixed를 유지 */
+  width: 300px; /* 오버레이 너비 조정 */
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  z-index: 1000;
+  pointer-events: none; /* 추가 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
