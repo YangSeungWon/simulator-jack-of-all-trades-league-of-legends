@@ -27,11 +27,14 @@ const statTranslation = {
 };
 
 const jackOfAllTradesStats = Object.keys(statTranslation);
-
-// Function to strip HTML tags from a string, but keep <br> tags
+// Function to strip HTML tags from a string, but keep <br> tags and replace active/passive/attention tags with bold
 const stripHtmlTags = (html) => {
   // Replace <br> tags with a placeholder
-  const withPlaceholder = html.replace(/<br\s*\/?>/gi, '###BR###');
+  let withPlaceholder = html.replace(/<br\s*\/?>/gi, '###BR###');
+  
+  // Replace <active> and <passive> tags with bold
+  withPlaceholder = withPlaceholder.replace(/<(active|passive|attention)>/gi, '**');
+  withPlaceholder = withPlaceholder.replace(/<\/(active|passive|attention)>/gi, '*/*');
   
   // Create a temporary div element
   const div = document.createElement('div');
@@ -42,6 +45,8 @@ const stripHtmlTags = (html) => {
   
   // Replace the placeholder back with <br> tags
   stripped = stripped.replace(/###BR###/g, '<br>');
+  stripped = stripped.replace(/\*\*/g, '<b>');
+  stripped = stripped.replace(/\*\/\*/g, '</b>');
   
   return stripped;
 };
@@ -217,7 +222,7 @@ function App() {
 
   const parseDescriptionForStats = (description) => {
     const stats = {};
-    const regex = /(력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/g;
+    const regex = /(체력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/g;
     let match;
     while ((match = regex.exec(description)) !== null) {
       const stat = match[1];
@@ -330,8 +335,8 @@ function App() {
     const itemElement = event.currentTarget;
     const rect = itemElement.getBoundingClientRect();
 
-    const overlayWidth = 400;
-    const overlayHeight = 200;
+    const overlayWidth = 450;
+    const overlayHeight = 800;
 
     let x = rect.right - 5;
     let y = rect.top;
