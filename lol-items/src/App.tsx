@@ -262,8 +262,12 @@ const App: React.FC = () => {
 
   const handleSelectedItemRemove = (index: number) => {
     setSelectedItems((prevSelectedItems) => {
-      const newSelectedItems = [...prevSelectedItems];
-      newSelectedItems[index] = null;
+      // Filter out the null values and the item to be removed
+      const newSelectedItems = prevSelectedItems.filter((_, i) => i !== index && prevSelectedItems[i] !== null);
+      // Fill the remaining slots with null
+      while (newSelectedItems.length < 6) {
+        newSelectedItems.push(null);
+      }
       return newSelectedItems;
     });
   };
