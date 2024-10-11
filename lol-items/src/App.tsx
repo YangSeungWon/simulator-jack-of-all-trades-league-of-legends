@@ -217,6 +217,10 @@ const App: React.FC = () => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const itemListRef = useRef<HTMLDivElement>(null);
 
+  const removeItemById = (id: string) => {
+    setItems((prevItems) => prevItems.filter(([itemId]) => itemId !== id));
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setDebug(params.get('debug') === 'true');
@@ -231,6 +235,11 @@ const App: React.FC = () => {
         const allItems: [string, Item][] = Object.entries(itemsResponse.data.data);
         const filteredItems = allItems.filter(([id, item]) => item.maps && item.maps[11] && item.gold.purchasable && item.gold.total > 0);
         setItems(filteredItems);
+
+        // 정글 진화 아이템 제거
+        removeItemById('1105');
+        removeItemById('1106');
+        removeItemById('1107');
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -557,7 +566,7 @@ const App: React.FC = () => {
                       {item.name}<br />
                       {item.colloq && <span className="colloq-name"> ({item.colloq})</span>}
                     </h2>
-                    {debug && <p>ID: {id}</p>}
+                    {debug && <p>ID: {id}</p>}  // This line displays the item ID when debug is true
                     <p><b>가격:</b> {item.gold.total} 골드</p>
                     <p><i>{item.plaintext}</i></p>
                     <p><strong>효과</strong><br />
