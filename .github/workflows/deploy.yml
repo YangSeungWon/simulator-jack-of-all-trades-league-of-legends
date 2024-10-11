@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd lol-items
-        npm install
+        npm install --legacy-peer-deps
 
     - name: Build
       run: |
