@@ -296,7 +296,7 @@ body, .some-class {
 
 .item-details-overlay {
   position: fixed; /* fixed를 유지 */
-  width: 450px; /* 오버레이 너비 조정 */
+  width: 550px; /* 오버레이 너비 조정 */
   background-color: rgba(0, 0, 0, 0.9);
   color: white;
   padding: 15px;

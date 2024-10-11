@@ -387,11 +387,11 @@ const App: React.FC = () => {
     const itemElement = event.currentTarget;
     const rect = itemElement.getBoundingClientRect();
 
-    const overlayWidth = 450;
-    const overlayHeight = 800;
+    const overlayWidth = 550;
+    const overlayHeight = 600;
 
     let x = rect.right - 5;
-    let y = rect.top;
+    let y = rect.bottom - 5;
 
     if (x + overlayWidth > window.innerWidth) {
       x = rect.left - overlayWidth - 10;
@@ -566,7 +566,7 @@ const App: React.FC = () => {
                       {item.name}<br />
                       {item.colloq && <span className="colloq-name"> ({item.colloq})</span>}
                     </h2>
-                    {debug && <p>ID: {id}</p>}  // This line displays the item ID when debug is true
+                    {debug && <p>ID: {id}</p>}
                     <p><b>가격:</b> {item.gold.total} 골드</p>
                     <p><i>{item.plaintext}</i></p>
                     <p><strong>효과</strong><br />
