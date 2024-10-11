@@ -159,17 +159,6 @@ const detailedStatTranslation: DetailedStatTranslation = {
   'PercentSpellVampMod': '주문 흡혈(%)'
 };
 
-function translateItemStats(itemStats: { [key: string]: number }): { [key: string]: number } {
-  const translatedStats: { [key: string]: number } = {};
-
-  Object.entries(itemStats).forEach(([statKey, value]) => {
-    const translatedKey = detailedStatTranslation[statKey] || statKey;
-    translatedStats[translatedKey] = value;
-  });
-
-  return translatedStats;
-}
-
 const Overlay: React.FC<OverlayProps> = ({ children, position }) => {
   return ReactDOM.createPortal(
     <div
