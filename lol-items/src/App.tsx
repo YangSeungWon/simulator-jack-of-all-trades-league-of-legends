@@ -1,9 +1,47 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, MouseEvent } from 'react';
 import axios from 'axios';
 import './App.css';
 import ReactDOM from 'react-dom';
 
-const statTranslation = {
+interface StatTranslation {
+  [key: string]: string;
+}
+
+interface CategoryTranslation {
+  [key: string]: string;
+}
+
+interface DetailedStatTranslation {
+  [key: string]: string;
+}
+
+interface Item {
+  id: string;
+  name: string;
+  colloq?: string;
+  gold: {
+    total: number;
+    purchasable: boolean;
+  };
+  description: string;
+  plaintext: string;
+  tags: string[];
+  from?: string[];
+  into?: string[];
+  maps: {
+    [key: string]: boolean;
+  };
+}
+
+interface OverlayProps {
+  children: React.ReactNode;
+  position: {
+    x: number;
+    y: number;
+  };
+}
+
+const statTranslation: StatTranslation = {
   'Health': '체력',
   'Base Health Regen': '기본 체력 재생',
   'Armor': '방어력',
@@ -27,31 +65,8 @@ const statTranslation = {
 };
 
 const jackOfAllTradesStats = Object.keys(statTranslation);
-// Function to strip HTML tags from a string, but keep <br> tags and replace active/passive/attention tags with bold
-const stripHtmlTags = (html) => {
-  // Replace <br> tags with a placeholder
-  let withPlaceholder = html.replace(/<br\s*\/?>/gi, '###BR###');
-  
-  // Replace <active> and <passive> tags with bold
-  withPlaceholder = withPlaceholder.replace(/<(active|passive|attention)>/gi, '**');
-  withPlaceholder = withPlaceholder.replace(/<\/(active|passive|attention)>/gi, '*/*');
-  
-  // Create a temporary div element
-  const div = document.createElement('div');
-  div.innerHTML = withPlaceholder;
-  
-  // Get the text content
-  let stripped = div.textContent || div.innerText || '';
-  
-  // Replace the placeholder back with <br> tags
-  stripped = stripped.replace(/###BR###/g, '<br>');
-  stripped = stripped.replace(/\*\*/g, '<b>');
-  stripped = stripped.replace(/\*\/\*/g, '</b>');
-  
-  return stripped;
-};
 
-const categoryTranslation = {
+const categoryTranslation: CategoryTranslation = {
   "Lane": "라인전",
   "Health": "체력",
   "Damage": "데미지",
@@ -76,7 +91,7 @@ const categoryTranslation = {
   "GoldPer": "골드 획득"
 };
 
-const detailedStatTranslation = {
+const detailedStatTranslation: DetailedStatTranslation = {
   'FlatHPPoolMod': '체력',
   'rFlatHPModPerLevel': '레벨당 체력',
   'FlatMPPoolMod': '마나',
@@ -144,8 +159,8 @@ const detailedStatTranslation = {
   'PercentSpellVampMod': '주문 흡혈(%)'
 };
 
-function translateItemStats(itemStats) {
-  const translatedStats = {};
+function translateItemStats(itemStats: { [key: string]: number }): { [key: string]: number } {
+  const translatedStats: { [key: string]: number } = {};
 
   Object.entries(itemStats).forEach(([statKey, value]) => {
     const translatedKey = detailedStatTranslation[statKey] || statKey;
@@ -155,7 +170,7 @@ function translateItemStats(itemStats) {
   return translatedStats;
 }
 
-const Overlay = ({ children, position }) => {
+const Overlay: React.FC<OverlayProps> = ({ children, position }) => {
   return ReactDOM.createPortal(
     <div
       className="item-details-overlay"
@@ -167,16 +182,16 @@ const Overlay = ({ children, position }) => {
   );
 };
 
-function App() {
-  const [items, setItems] = useState([]);
-  const [version, setVersion] = useState('');
-  const [selectedItems, setSelectedItems] = useState(Array(6).fill(null));
-  const [debug, setDebug] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState({ type: '', value: '' });
-  const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
-  const [hoveredItem, setHoveredItem] = useState(null);
-  const itemListRef = useRef(null);
+const App: React.FC = () => {
+  const [items, setItems] = useState<[string, Item][]>([]);
+  const [version, setVersion] = useState<string>('');
+  const [selectedItems, setSelectedItems] = useState<(string | null)[]>(Array(6).fill(null));
+  const [debug, setDebug] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [activeFilter, setActiveFilter] = useState<{ type: string; value: string }>({ type: '', value: '' });
+  const [overlayPosition, setOverlayPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const itemListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -184,12 +199,12 @@ function App() {
 
     const fetchVersion = async () => {
       try {
-        const versionResponse = await axios.get('https://ddragon.leagueoflegends.com/api/versions.json');
+        const versionResponse = await axios.get<string[]>('https://ddragon.leagueoflegends.com/api/versions.json');
         const latestVersion = versionResponse.data[0];
         setVersion(latestVersion);
 
-        const itemsResponse = await axios.get(`https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/ko_KR/item.json`);
-        const allItems = Object.entries(itemsResponse.data.data);
+        const itemsResponse = await axios.get<{ data: { [key: string]: Item } }>(`https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/ko_KR/item.json`);
+        const allItems: [string, Item][] = Object.entries(itemsResponse.data.data);
         const filteredItems = allItems.filter(([id, item]) => item.maps && item.maps[11] && item.gold.purchasable && item.gold.total > 0);
         setItems(filteredItems);
       } catch (error) {
@@ -200,7 +215,7 @@ function App() {
     fetchVersion();
   }, []);
 
-  const handleItemClick = (id) => {
+  const handleItemClick = (id: string) => {
     setSelectedItems((prevSelectedItems) => {
       const index = prevSelectedItems.findIndex(item => item === null);
       if (index !== -1) {
@@ -212,7 +227,7 @@ function App() {
     });
   };
 
-  const handleSelectedItemRemove = (index) => {
+  const handleSelectedItemRemove = (index: number) => {
     setSelectedItems((prevSelectedItems) => {
       const newSelectedItems = [...prevSelectedItems];
       newSelectedItems[index] = null;
@@ -220,15 +235,15 @@ function App() {
     });
   };
 
-  const parseDescriptionForStats = (description) => {
-    const stats = {};
+  const parseDescriptionForStats = (description: string): { [key: string]: { value: number } } => {
+    const stats: { [key: string]: { value: number } } = {};
     const regex = /(체력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/g;
     let match;
     while ((match = regex.exec(description)) !== null) {
       const stat = match[1];
       const value = parseInt(match[2], 10);
       const isPercentage = match[3] === '%';
-      let statType;
+      let statType: string;
       if (stat === '마법 관통력' || stat === '이동 속도') {
         if (isPercentage) {
           statType = `${stat}(%)`;
@@ -247,8 +262,8 @@ function App() {
     return stats;
   };
 
-  const calculateTotalStats = () => {
-    const totalStats = {};
+  const calculateTotalStats = (): { [key: string]: number } => {
+    const totalStats: { [key: string]: number } = {};
 
     selectedItems.forEach(id => {
       if (id) {
@@ -284,19 +299,19 @@ function App() {
   const { activeStats, inactiveStats, stackCount, abilityHaste, adaptiveBonus } = calculateJackOfAllTrades();
   const totalStats = calculateTotalStats(); // Define totalStats here
 
-  const handleCategoryButtonClick = (tag) => {
+  const handleCategoryButtonClick = (tag: string) => {
     setActiveFilter((prevFilter) => 
       prevFilter.type === 'category' && prevFilter.value === tag ? { type: '', value: '' } : { type: 'category', value: tag }
     );
   };
 
-  const handleJackOfAllTradesFilterClick = (stat) => {
+  const handleJackOfAllTradesFilterClick = (stat: string) => {
     setActiveFilter((prevFilter) => 
       prevFilter.type === 'jack' && prevFilter.value === stat ? { type: '', value: '' } : { type: 'jack', value: stat }
     );
   };
 
-  const filterItems = (items) => {
+  const filterItems = (items: [string, Item][]) => {
     if (!activeFilter.value) return items;
 
     if (activeFilter.type === 'category') {
@@ -311,11 +326,11 @@ function App() {
     return items;
   };
 
-  const handleSearchChange = (event) => {
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
 
-  const filterItemsBySearch = (items, query) => {
+  const filterItemsBySearch = (items: [string, Item][], query: string) => {
     if (!query) return items;
     const lowerCaseQuery = query.toLowerCase();
     return items.filter(([id, item]) => {
@@ -329,7 +344,7 @@ function App() {
     setSelectedItems(Array(6).fill(null));
   };
 
-  const handleItemMouseEnter = (id, event) => {
+  const handleItemMouseEnter = (id: string, event: MouseEvent<HTMLDivElement>) => {
     setHoveredItem(id);
 
     const itemElement = event.currentTarget;
@@ -354,6 +369,30 @@ function App() {
 
   const handleItemMouseLeave = () => {
     setHoveredItem(null);
+  };
+
+  // Function to strip HTML tags from a string, but keep <br> tags and replace active/passive/attention tags with bold
+  const stripHtmlTags = (html: string): string => {
+    // Replace <br> tags with a placeholder
+    let withPlaceholder = html.replace(/<br\s*\/?>/gi, '###BR###');
+
+    // Replace <active> and <passive> tags with bold
+    withPlaceholder = withPlaceholder.replace(/<(active|passive|attention)>/gi, '###bold###');
+    withPlaceholder = withPlaceholder.replace(/<\/(active|passive|attention)>/gi, '###/bold###');
+
+    // Create a temporary div element
+    const div = document.createElement('div');
+    div.innerHTML = withPlaceholder;
+
+    // Get the text content
+    let stripped = div.textContent || div.innerText || '';
+
+    // Replace the placeholder back with <br> tags
+    stripped = stripped.replace(/###BR###/g, '<br>');
+    stripped = stripped.replace(/###bold###/g, '<b>');
+    stripped = stripped.replace(/###\/bold###/g, '</b>');
+
+    return stripped;
   };
 
   return (
@@ -573,6 +612,6 @@ function App() {
       </footer>
     </div>
   );
-}
+};
 
 export default App;
