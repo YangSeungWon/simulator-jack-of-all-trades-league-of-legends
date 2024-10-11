@@ -560,6 +560,12 @@ function App() {
           </div>
         </div>
       </div>
+      <footer className="footer">
+        <p style={{ fontSize: '0.75em' }}>
+          EN: Item Builder(Jack of All Trades Simulator) is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.<br />
+          KR: 롤 아이템 빌더(다재다능 시뮬레이터)는 Riot Games와 연관이 없으며, Riot Games 또는 라이엇 게임즈 자산을 생산 및 관리하는 그 어떤 곳과도 공식적인 관계가 없습니다. Riot Games 및 모든 관련 자산은 Riot Games, Inc.의 상표 또는 등록 상표입니다.
+        </p>
+      </footer>
     </div>
   );
 }
