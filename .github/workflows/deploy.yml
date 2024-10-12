@@ -36,6 +36,12 @@ jobs:
     - name: Copy CNAME file
       run: cp CNAME lol-items/build/
 
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: github-pages
+        path: lol-items/build
+
     - name: Deploy to GitHub Pages
       uses: actions/deploy-pages@v4
       with:
