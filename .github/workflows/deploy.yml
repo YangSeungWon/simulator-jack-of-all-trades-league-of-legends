@@ -25,6 +25,7 @@ jobs:
     - name: Install Packages
       run: |
         cd lol-items
+        npm install # Update lock file if necessary
         npm ci
 
     - name: Build
