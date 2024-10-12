@@ -492,6 +492,18 @@ const App: React.FC = () => {
     );
   };
 
+  const calculateTotalGold = (): number => {
+    return selectedItems.reduce((total, id) => {
+      if (id) {
+        const item = items.find(([itemId]) => itemId === id);
+        if (item) {
+          return total + item[1].gold.total;
+        }
+      }
+      return total;
+    }, 0);
+  };
+
   return (
     <div className="App">
       <div className="header">
@@ -543,6 +555,9 @@ const App: React.FC = () => {
                   return itemB[1].gold.total - itemA[1].gold.total;
                 })}
               <button onClick={handleResetItems} className="reset-button">초기화</button>
+              <div className="total-gold">
+                총 골드: <strong>{calculateTotalGold()}</strong>
+              </div>
             </div>
           </div>
           <div className="total-stats">

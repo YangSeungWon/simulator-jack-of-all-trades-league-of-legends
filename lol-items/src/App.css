@@ -370,3 +370,29 @@ body, .some-class {
     display: none;
   }
 }
+
+.selected-items.slot-container {
+  display: flex;
+  align-items: center;
+  background-color: #333; /* Dark background */
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.total-gold {
+  color: #fff; /* White text for contrast */
+  margin-right: 10px; /* Space between total gold and button */
+}
+
+.reset-button {
+  background-color: #555; /* Slightly lighter dark background for button */
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.reset-button:hover {
+  background-color: #777; /* Lighter background on hover */
+}
