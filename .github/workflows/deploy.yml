@@ -33,8 +33,11 @@ jobs:
         cd lol-items
         npm run build
 
+    - name: Copy CNAME file
+      run: cp CNAME lol-items/build/
+
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: actions/deploy-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./lol-items/build
