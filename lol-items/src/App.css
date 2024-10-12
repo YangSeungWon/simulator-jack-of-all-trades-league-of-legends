@@ -66,10 +66,9 @@
 }
 
 .selected-items-container {
-  background-color: #0e1617;
   padding: 10px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(91, 76, 11, 0.1);
+  width: 250px;
 }
 
 .right-panel {
@@ -185,6 +184,9 @@ input[type="text"]:focus {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 15px;
+  width: 100%; /* Ensure the container takes full width */
+  max-width: 250px; /* Adjust as needed for your design */
+  margin: 0 auto; /* Center the grid */
 }
 
 .bold {
@@ -327,6 +329,7 @@ body, .some-class {
 
   .selected-items-container, .total-stats, .jack-of-all-trades {
     margin-bottom: 20px;
+    width: 250px;
   }
 
   .item-list {
@@ -377,6 +380,7 @@ body, .some-class {
   background-color: #333; /* Dark background */
   padding: 10px;
   border-radius: 5px;
+  width: 250px;
 }
 
 .total-gold {
