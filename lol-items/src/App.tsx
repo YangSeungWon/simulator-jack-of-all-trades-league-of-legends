@@ -264,27 +264,30 @@ const App: React.FC = () => {
   const parseDescriptionForStats = (description: string): { [key: string]: { value: number } } => {
     const cleanDescription = description.replace(/<\/?b>/g, '');
     const stats: { [key: string]: { value: number } } = {};
-    const regex = /(체력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|방어구 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/g;
-    let match;
-    while ((match = regex.exec(cleanDescription)) !== null) {
-      const stat = match[1];
-      const value = parseInt(match[2], 10);
-      const isPercentage = match[3] === '%';
-      let statType: string;
-      if (stat === '마법 관통력' || stat === '이동 속도') {
-        if (isPercentage) {
-          statType = `${stat}(%)`;
+    const regex = /^(체력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|방어구 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/;
+    const lines = cleanDescription.split('<br>');
+    for (const line of lines) {
+      const match = line.match(regex);
+      if (match) {
+        const stat = match[1];
+        const value = parseInt(match[2], 10);
+        const isPercentage = match[3] === '%';
+        let statType: string;
+        if (stat === '마법 관통력' || stat === '이동 속도') {
+          if (isPercentage) {
+            statType = `${stat}(%)`;
+          } else {
+            statType = `${stat}(고정 수치)`;
+          }
         } else {
-          statType = `${stat}(고정 수치)`;
+          statType = categoryTranslation[stat] || stat;
         }
-      } else {
-        statType = categoryTranslation[stat] || stat;
-      }
 
-      if (!stats[statType]) {
-        stats[statType] = { value: 0 };
+        if (!stats[statType]) {
+          stats[statType] = { value: 0 };
+        }
+        stats[statType].value += value;
       }
-      stats[statType].value += value;
     }
     return stats;
   };
