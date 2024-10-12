@@ -2,19 +2,42 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+
+permissions:
+  contents: write
 
 jobs:
-  build:
-
+  build-deploy:
     runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
 
-    - name: Build and Deploy lol-items app to GitHub Pages
-      uses: omkartapale/react-deployment-gh-pages@v1.0.0
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Use Node.js 20
+      uses: actions/setup-node@v3
       with:
-        project_path: 'lol-items'
+        node-version: '20'
+        cache: "npm"
+
+    - name: Install Packages
+      run: |
+        cd lol-items
+        npm ci
+
+    - name: Build
+      run: |
+        cd lol-items
+        npm run build
+
+    # - name: Test
+    #   run: |
+    #     cd lol-items
+    #     npm test
+
+    - name: Deploy🚀
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: gh-pages
+        folder: lol-items/build
