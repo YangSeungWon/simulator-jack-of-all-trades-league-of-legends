@@ -237,6 +237,18 @@ const App: React.FC = () => {
     fetchVersion();
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setHoveredItem(null);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   const handleItemClick = (id: string) => {
     setSelectedItems((prevSelectedItems) => {
       const index = prevSelectedItems.findIndex(item => item === null);
@@ -259,6 +271,9 @@ const App: React.FC = () => {
       }
       return newSelectedItems;
     });
+
+    // Close the overlay when an item is removed
+    setHoveredItem(null);
   };
 
   const parseDescriptionForStats = (description: string, itemId: string): { [key: string]: { value: number } } => {
