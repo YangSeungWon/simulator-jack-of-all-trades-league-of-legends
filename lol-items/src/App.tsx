@@ -261,7 +261,17 @@ const App: React.FC = () => {
     });
   };
 
-  const parseDescriptionForStats = (description: string): { [key: string]: { value: number } } => {
+  const parseDescriptionForStats = (description: string, itemId: string): { [key: string]: { value: number } } => {
+    // Special case for item ID 3865 with an empty description
+    if (itemId === '3865' && description.trim() === '') {
+      return {
+        '체력': { value: 30 },
+        '기본 체력 재생(%)': { value: 25 },
+        '기본 마나 재생(%)': { value: 25 },
+        '10초당 골드': { value: 3 }
+      };
+    }
+
     const cleanDescription = description.replace(/<\/?b>/g, '');
     const stats: { [key: string]: { value: number } } = {};
     const regex = /^(체력|기본 체력 재생|방어력|마법 저항력|강인함|공격력|공격 속도|치명타 확률|물리 관통력|방어구 관통력|생명력 흡수|스킬 가속|마나|기본 마나 재생|주문력|마법 관통력|이동 속도|체력 회복 및 보호막)\s+(\d+)(%?)/;
@@ -298,8 +308,8 @@ const App: React.FC = () => {
     selectedItems.forEach(id => {
       if (id) {
         const item = items.find(([itemId]) => itemId === id);
-        if (item && item[1].description) {
-          const itemStats = parseDescriptionForStats(stripHtmlTags(item[1].description));
+        if (item) {
+          const itemStats = parseDescriptionForStats(stripHtmlTags(item[1].description), id);
           Object.entries(itemStats).forEach(([stat, { value }]) => {
             if (totalStats[stat]) {
               totalStats[stat] += value;
@@ -349,7 +359,7 @@ const App: React.FC = () => {
       filteredItems = items.filter(([id, item]) => item.tags.includes(activeFilter.value));
     } else if (activeFilter.type === 'jack') {
       filteredItems = items.filter(([id, item]) => {
-        const itemStats = parseDescriptionForStats(stripHtmlTags(item.description));
+        const itemStats = parseDescriptionForStats(stripHtmlTags(item.description), id);
         return itemStats[statTranslation[activeFilter.value]];
       });
     } else {
@@ -404,6 +414,69 @@ const App: React.FC = () => {
     setHoveredItem(null);
   };
 
+  const renderOverlayContent = (id: string) => {
+    const item = items.find(([itemId]) => itemId === id)?.[1];
+    if (!item) return null;
+    const description = id === '3865' && item.description.trim() === ''
+      ? `
+        체력 <b>30</b><br>
+        기본 체력 재생 <b>25%</b><br>
+        기본 마나 재생 <b>25%</b><br>
+        10초당 골드 <b>3</b>
+      `
+      : stripHtmlTags(item.description);
+    return (
+      <>
+        <h2>
+          {item.name}<br />
+          {item.colloq && <span className="colloq-name"> ({item.colloq})</span>}
+        </h2>
+        {debug && <p>ID: {id}</p>}
+        <p><b>가격:</b> {item.gold.total} 골드</p>
+        <p><i>{item.plaintext}</i></p>
+        <p><strong>효과</strong><br />
+          <span dangerouslySetInnerHTML={{ __html: description }} />
+        </p>
+        <div>
+          <strong>상위 아이템:</strong>
+          <div className="into-images">
+            {item.into ? item.into
+              .filter(intoId => {
+                const intoItem = items.find(([itemId]) => itemId === intoId);
+                return intoItem && intoItem[1].maps && intoItem[1].maps[11];
+              })
+              .map((intoId) => (
+                <img
+                  key={intoId}
+                  src={`https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${intoId}.png`}
+                  alt={`Item ${intoId}`}
+                  className="into-item"
+                />
+              )) : <p>없음</p>}
+          </div>
+        </div>
+        <div>
+          <strong>하위 아이템:</strong>
+          <div className="from-images">
+            {item.from ? item.from
+              .filter(fromId => {
+                const fromItem = items.find(([itemId]) => itemId === fromId);
+                return fromItem && fromItem[1].maps && fromItem[1].maps[11];
+              })
+              .map((fromId) => (
+                <img
+                  key={fromId}
+                  src={`https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${fromId}.png`}
+                  alt={`Item ${fromId}`}
+                  className="from-item"
+                />
+              )) : <p>없음</p>}
+          </div>
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="App">
       <div className="header">
@@ -424,11 +497,22 @@ const App: React.FC = () => {
                   }
 
                   return (
-                    <div key={index} className="selected-item" onClick={() => handleSelectedItemRemove(index)}>
+                    <div 
+                      key={index} 
+                      className="selected-item" 
+                      onClick={() => handleSelectedItemRemove(index)}
+                      onMouseEnter={(e) => handleItemMouseEnter(id, e)} // Add this line
+                      onMouseLeave={handleItemMouseLeave} // Add this line
+                    >
                       <img
                         src={`https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${id}.png`}
                         alt={`Item ${id}`}
                       />
+                      {hoveredItem === id && (
+                        <Overlay position={overlayPosition}>
+                          {renderOverlayContent(id)}
+                        </Overlay>
+                      )}
                     </div>
                   );
                 })
@@ -557,52 +641,7 @@ const App: React.FC = () => {
                 />
                 {hoveredItem === id && (
                   <Overlay position={overlayPosition}>
-                    <h2>
-                      {item.name}<br />
-                      {item.colloq && <span className="colloq-name"> ({item.colloq})</span>}
-                    </h2>
-                    {debug && <p>ID: {id}</p>}
-                    <p><b>가격:</b> {item.gold.total} 골드</p>
-                    <p><i>{item.plaintext}</i></p>
-                    <p><strong>효과</strong><br />
-                      <span dangerouslySetInnerHTML={{ __html: stripHtmlTags(item.description) }} />
-                    </p>
-                    <div>
-                      <strong>상위 아이템:</strong>
-                      <div className="into-images">
-                        {item.into ? item.into
-                          .filter(intoId => {
-                            const intoItem = items.find(([itemId]) => itemId === intoId);
-                            return intoItem && intoItem[1].maps && intoItem[1].maps[11];
-                          })
-                          .map((intoId) => (
-                            <img
-                              key={intoId}
-                              src={`https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${intoId}.png`}
-                              alt={`Item ${intoId}`}
-                              className="into-item"
-                            />
-                          )) : <p>없음</p>}
-                      </div>
-                    </div>
-                    <div>
-                      <strong>하위 아이템:</strong>
-                      <div className="from-images">
-                        {item.from ? item.from
-                          .filter(fromId => {
-                            const fromItem = items.find(([itemId]) => itemId === fromId);
-                            return fromItem && fromItem[1].maps && fromItem[1].maps[11];
-                          })
-                          .map((fromId) => (
-                            <img
-                              key={fromId}
-                              src={`https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${fromId}.png`}
-                              alt={`Item ${fromId}`}
-                              className="from-item"
-                            />
-                          )) : <p>없음</p>}
-                      </div>
-                    </div>
+                    {renderOverlayContent(id)}
                   </Overlay>
                 )}
               </div>
