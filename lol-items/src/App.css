@@ -305,3 +305,68 @@ body, .some-class {
   pointer-events: none; /* 추가 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .App {
+    flex-direction: column;
+  }
+
+  .header {
+    text-align: center;
+  }
+
+  .content {
+    flex-direction: column;
+  }
+
+  .left-panel, .right-panel {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .selected-items-container, .total-stats, .jack-of-all-trades {
+    margin-bottom: 20px;
+  }
+
+  .item-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+  }
+
+  .item {
+    display: flex;
+    justify-content: center;
+  }
+
+  .filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .filter-button {
+    margin: 5px;
+  }
+
+  .search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .search-container input {
+    width: 80%;
+    margin-top: 10px;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 10px;
+  }
+
+  .item-details-overlay {
+    display: none;
+  }
+}
