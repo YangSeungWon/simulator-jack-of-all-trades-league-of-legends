@@ -173,8 +173,11 @@ const Overlay: React.FC<OverlayProps> = ({ children, position }) => {
 
 // Define the stripHtmlTags function before it is used
 const stripHtmlTags = (html: string): string => {
+  // Remove Ornn icon from item names
+  let withoutOrnnIcon = html.replace(/%i:ornnIcon%/g, '');
+
   // Replace <br> tags with a placeholder
-  let withPlaceholder = html.replace(/<br\s*\/?>/gi, '###BR###');
+  let withPlaceholder = withoutOrnnIcon.replace(/<br\s*\/?>/gi, '###BR###');
 
   // Replace <active> and <passive> tags with bold
   withPlaceholder = withPlaceholder.replace(/<(active|passive|attention)>/gi, '###bold###');
@@ -195,6 +198,25 @@ const stripHtmlTags = (html: string): string => {
   return stripped;
 };
 
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24시간
+
+const fetchVersionWithCache = async () => {
+  const cachedData = localStorage.getItem('versions');
+  const cachedTimestamp = localStorage.getItem('versionsTimestamp');
+
+  if (cachedData && cachedTimestamp) {
+    const isExpired = Date.now() - Number(cachedTimestamp) > CACHE_DURATION;
+    if (!isExpired) {
+      return JSON.parse(cachedData);
+    }
+  }
+
+  const response = await axios.get<string[]>('https://ddragon.leagueoflegends.com/api/versions.json');
+  localStorage.setItem('versions', JSON.stringify(response.data));
+  localStorage.setItem('versionsTimestamp', Date.now().toString());
+  return response.data;
+};
+
 const App: React.FC = () => {
   const [items, setItems] = useState<[string, Item][]>([]);
   const [version, setVersion] = useState<string>('');
@@ -205,6 +227,8 @@ const App: React.FC = () => {
   const [overlayPosition, setOverlayPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const itemListRef = useRef<HTMLDivElement>(null);
+  const [availableVersions, setAvailableVersions] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const removeItemById = (id: string) => {
     setItems((prevItems) => prevItems.filter(([itemId]) => itemId !== id));
@@ -216,11 +240,12 @@ const App: React.FC = () => {
 
     const fetchVersion = async () => {
       try {
-        const versionResponse = await axios.get<string[]>('https://ddragon.leagueoflegends.com/api/versions.json');
-        const latestVersion = versionResponse.data[0];
-        setVersion(latestVersion);
+        setError(null);
+        const versions = await fetchVersionWithCache();
+        setAvailableVersions(versions);
+        setVersion(versions[0]);
 
-        const itemsResponse = await axios.get<{ data: { [key: string]: Item } }>(`https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/ko_KR/item.json`);
+        const itemsResponse = await axios.get<{ data: { [key: string]: Item } }>(`https://ddragon.leagueoflegends.com/cdn/${versions[0]}/data/ko_KR/item.json`);
         const allItems: [string, Item][] = Object.entries(itemsResponse.data.data);
         const filteredItems = allItems.filter(([id, item]) => item.maps && item.maps[11] && item.gold.purchasable && item.gold.total > 0);
         setItems(filteredItems);
@@ -230,7 +255,8 @@ const App: React.FC = () => {
         removeItemById('1106');
         removeItemById('1107');
       } catch (error) {
-        console.error('Error fetching data:', error);
+        setError('버전 정보를 불러오는데 실패했습니다. 나중에 다시 시도해주세요.');
+        console.error('Error fetching version:', error);
       }
     };
 
@@ -343,7 +369,7 @@ const App: React.FC = () => {
     const totalStats = calculateTotalStats();
     const activeStats = jackOfAllTradesStats.filter(stat => totalStats[statTranslation[stat]]);
     const inactiveStats = jackOfAllTradesStats.filter(stat => !totalStats[statTranslation[stat]]);
-    
+
     const stackCount = activeStats.length;
     const abilityHaste = stackCount;
     const adaptiveBonus = stackCount >= 10 ? 25 : stackCount >= 5 ? 10 : 0;
@@ -355,13 +381,13 @@ const App: React.FC = () => {
   const totalStats = calculateTotalStats(); // Define totalStats here
 
   const handleCategoryButtonClick = (tag: string) => {
-    setActiveFilter((prevFilter) => 
+    setActiveFilter((prevFilter) =>
       prevFilter.type === 'category' && prevFilter.value === tag ? { type: '', value: '' } : { type: 'category', value: tag }
     );
   };
 
   const handleJackOfAllTradesFilterClick = (stat: string) => {
-    setActiveFilter((prevFilter) => 
+    setActiveFilter((prevFilter) =>
       prevFilter.type === 'jack' && prevFilter.value === stat ? { type: '', value: '' } : { type: 'jack', value: stat }
     );
   };
@@ -504,11 +530,50 @@ const App: React.FC = () => {
     }, 0);
   };
 
+  const handleVersionChange = async (selectedVersion: string) => {
+    try {
+      setError(null);
+      setVersion(selectedVersion);
+
+      const itemsResponse = await axios.get<{ data: { [key: string]: Item } }>(
+        `https://ddragon.leagueoflegends.com/cdn/${selectedVersion}/data/ko_KR/item.json`
+      );
+
+      const allItems: [string, Item][] = Object.entries(itemsResponse.data.data);
+      const filteredItems = allItems.filter(([id, item]) =>
+        item.maps && item.maps[11] && item.gold.purchasable && item.gold.total > 0
+      );
+
+      setItems(filteredItems);
+
+      // 정글 진화 아이템 제거
+      removeItemById('1105');
+      removeItemById('1106');
+      removeItemById('1107');
+    } catch (error) {
+      setError('아이템 데이터를 불러오는데 실패했습니다. 나중에 다시 시도해주세요.');
+      console.error('Error fetching items:', error);
+    }
+  };
+
   return (
     <div className="App">
       <div className="header">
         <img src="logo512.png" alt="App Icon" className="app-icon" />
         <h1>League of Legends - Item Builder (다재다능 시뮬레이터)</h1>
+        <div className="version-selector">
+          <select
+            value={version}
+            onChange={(e) => handleVersionChange(e.target.value)}
+            className="version-select"
+          >
+            {availableVersions.map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
       <div className="content">
         <div className="left-panel">
@@ -524,9 +589,9 @@ const App: React.FC = () => {
                   }
 
                   return (
-                    <div 
-                      key={index} 
-                      className="selected-item" 
+                    <div
+                      key={index}
+                      className="selected-item"
                       onClick={() => handleSelectedItemRemove(index)}
                       onMouseEnter={(e) => handleItemMouseEnter(id, e)} // Add this line
                       onMouseLeave={handleItemMouseLeave} // Add this line
@@ -546,7 +611,7 @@ const App: React.FC = () => {
                 .sort((a, b) => {
                   if (a.props.className === 'empty-slot') return 1;
                   if (b.props.className === 'empty-slot') return -1;
-                  
+
                   const itemA = items.find(([itemId]) => itemId === a.key);
                   const itemB = items.find(([itemId]) => itemId === b.key);
 
@@ -584,7 +649,7 @@ const App: React.FC = () => {
               <img src="jack.webp" alt="Jack of All Trades" className="jack-image" />
               <div className="jack-description">
                 <p style={{ fontSize: '0.75em' }}>
-                  다재다능에서 얻는 능력치: 아이템으로 얻은 서로 다른 능력치 하나당 잭 중첩을 얻습니다. 
+                  다재다능에서 얻는 능력치: 아이템으로 얻은 서로 다른 능력치 하나당 잭 중첩을 얻습니다.
                   중첩 하나당 스킬 가속이 1 증가합니다. 5회 및 10회 중첩시 각각 10 또는 25의 추가 적응형 능력치를 획득했습니다.
                 </p>
               </div>

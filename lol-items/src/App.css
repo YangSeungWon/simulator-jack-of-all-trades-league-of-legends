@@ -7,11 +7,11 @@
 .header {
   background-color: #444;
   color: #fff;
-  padding: 20px;
+  padding: 10px 20px;
   border-bottom: 2px solid #333;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 .header h1 {
@@ -396,4 +396,43 @@ body, .some-class {
 .total-gold {
   color: #fff; /* White text for contrast */
   margin-right: 10px; /* Space between total gold and button */
+}
+
+.version-selector {
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.version-select {
+  padding: 5px 10px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.version-select:hover {
+  border-color: #007bff;
+}
+
+.version-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .version-selector {
+    margin-left: 0;
+    margin-top: 10px;
+  }
 }
