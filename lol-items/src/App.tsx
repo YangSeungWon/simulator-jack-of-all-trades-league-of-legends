@@ -174,7 +174,7 @@ const Overlay: React.FC<OverlayProps> = ({ children, position }) => {
 // Define the stripHtmlTags function before it is used
 const stripHtmlTags = (html: string): string => {
   // Remove Ornn icon from item names
-  let withoutOrnnIcon = html.replace(/%i:ornnIcon%/g, '');
+  const withoutOrnnIcon = html.replace(/%i:ornnIcon%/g, '');
 
   // Replace <br> tags with a placeholder
   let withPlaceholder = withoutOrnnIcon.replace(/<br\s*\/?>/gi, '###BR###');
