@@ -228,7 +228,6 @@ const App: React.FC = () => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const itemListRef = useRef<HTMLDivElement>(null);
   const [availableVersions, setAvailableVersions] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   const removeItemById = (id: string) => {
     setItems((prevItems) => prevItems.filter(([itemId]) => itemId !== id));
@@ -240,7 +239,6 @@ const App: React.FC = () => {
 
     const fetchVersion = async () => {
       try {
-        setError(null);
         const versions = await fetchVersionWithCache();
         setAvailableVersions(versions);
         setVersion(versions[0]);
@@ -255,7 +253,6 @@ const App: React.FC = () => {
         removeItemById('1106');
         removeItemById('1107');
       } catch (error) {
-        setError('버전 정보를 불러오는데 실패했습니다. 나중에 다시 시도해주세요.');
         console.error('Error fetching version:', error);
       }
     };
@@ -532,7 +529,6 @@ const App: React.FC = () => {
 
   const handleVersionChange = async (selectedVersion: string) => {
     try {
-      setError(null);
       setVersion(selectedVersion);
 
       const itemsResponse = await axios.get<{ data: { [key: string]: Item } }>(
@@ -551,7 +547,6 @@ const App: React.FC = () => {
       removeItemById('1106');
       removeItemById('1107');
     } catch (error) {
-      setError('아이템 데이터를 불러오는데 실패했습니다. 나중에 다시 시도해주세요.');
       console.error('Error fetching items:', error);
     }
   };
