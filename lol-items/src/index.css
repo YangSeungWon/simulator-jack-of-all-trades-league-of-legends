@@ -15,23 +15,6 @@
   font-style: normal;
 }
 
-/* LoL colors defined as CSS variables */
-:root {
-  --primary-blue: #0a1428;
-  --secondary-blue: #091428;
-  --gold: #c8aa6e;
-  --light-gold: #f0e6d2;
-  --dark-gold: #785a28;
-  --accent-blue: #0397ab;
-  --dark-accent: #005a82;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 html {
   height: 100%;
   scroll-behavior: smooth;

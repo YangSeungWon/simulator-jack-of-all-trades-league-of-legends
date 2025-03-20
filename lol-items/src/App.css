@@ -12,6 +12,71 @@
   --border-color: #785a28;
   --active-color: #0397ab;
   --inactive-color: #800000;
+
+  /* Custom cursor definitions */
+  --cursor-normal: -webkit-image-set(
+        url("../public/images/cursors/normal.png") 2x
+      )
+      0 0,
+    auto;
+  --cursor-link: -webkit-image-set(url("../public/images/cursors/link.png") 2x)
+      0 0,
+    pointer;
+  --cursor-text: -webkit-image-set(url("../public/images/cursors/text.png") 2x)
+      8 8,
+    text;
+  --cursor-unavailable: -webkit-image-set(
+        url("../public/images/cursors/unavailable.png") 2x
+      )
+      0 0,
+    not-allowed;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 기본 커서 강제 적용 */
+* {
+  cursor: var(--cursor-normal) !important;
+}
+
+/* 클릭 가능 요소에 커서 적용 */
+*:where(
+    [style*="cursor: pointer"],
+    [style*="cursor: grab"],
+    [style*="cursor: auto"],
+    [onclick],
+    [role="button"],
+    button,
+    a,
+    select,
+    summary
+  ) {
+  cursor: var(--cursor-link) !important;
+}
+
+/* 특정 커서 값 강제 적용 */
+*[cursor="auto"] {
+  cursor: var(--cursor-normal) !important;
+}
+
+*[cursor="pointer"],
+*[cursor="grab"],
+*[cursor="drag"] {
+  cursor: var(--cursor-link) !important;
+}
+
+*[cursor="not-allowed"] {
+  cursor: var(--cursor-unavailable) !important;
+}
+
+*[cursor="text"],
+input[type="text"],
+textarea {
+  cursor: var(--cursor-text) !important;
 }
 
 body {
