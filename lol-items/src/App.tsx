@@ -228,6 +228,7 @@ const App: React.FC = () => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const itemListRef = useRef<HTMLDivElement>(null);
   const [availableVersions, setAvailableVersions] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const removeItemById = (id: string) => {
     setItems((prevItems) => prevItems.filter(([itemId]) => itemId !== id));
@@ -242,6 +243,7 @@ const App: React.FC = () => {
     setDebug(params.get('debug') === 'true');
 
     const fetchVersion = async () => {
+      setIsLoading(true);
       try {
         const versions = await fetchVersionWithCache();
         setAvailableVersions(versions);
@@ -260,6 +262,8 @@ const App: React.FC = () => {
         removeItem320000();
       } catch (error) {
         console.error('Error fetching version:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -535,6 +539,7 @@ const App: React.FC = () => {
 
   const handleVersionChange = async (selectedVersion: string) => {
     try {
+      setIsLoading(true);
       setVersion(selectedVersion);
 
       const itemsResponse = await axios.get<{ data: { [key: string]: Item } }>(
@@ -554,6 +559,8 @@ const App: React.FC = () => {
       removeItemById('1107');
     } catch (error) {
       console.error('Error fetching items:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -567,6 +574,7 @@ const App: React.FC = () => {
             value={version}
             onChange={(e) => handleVersionChange(e.target.value)}
             className="version-select"
+            disabled={isLoading}
           >
             {availableVersions.map((v) => (
               <option key={v} value={v}>
@@ -594,8 +602,8 @@ const App: React.FC = () => {
                       key={index}
                       className="selected-item"
                       onClick={() => handleSelectedItemRemove(index)}
-                      onMouseEnter={(e) => handleItemMouseEnter(id, e)} // Add this line
-                      onMouseLeave={handleItemMouseLeave} // Add this line
+                      onMouseEnter={(e) => handleItemMouseEnter(id, e)}
+                      onMouseLeave={handleItemMouseLeave}
                     >
                       <img
                         src={`https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${id}.png`}
@@ -620,10 +628,10 @@ const App: React.FC = () => {
 
                   return itemB[1].gold.total - itemA[1].gold.total;
                 })}
-              <button onClick={handleResetItems} className="reset-button">초기화</button>
-              <div className="total-gold">
-                총 골드: <strong>{calculateTotalGold()}</strong>
-              </div>
+            </div>
+            <button onClick={handleResetItems} className="reset-button">초기화</button>
+            <div className="total-gold">
+              총 골드: <strong>{calculateTotalGold()}</strong>
             </div>
           </div>
           <div className="total-stats">
@@ -681,7 +689,6 @@ const App: React.FC = () => {
           <div>
             <h2 style={{ margin: 0 }}>전체 아이템</h2>
             <div className="search-container">
-              <label htmlFor="search">검색:</label>
               <input
                 type="text"
                 id="search"
@@ -689,6 +696,7 @@ const App: React.FC = () => {
                 value={searchQuery}
                 onChange={handleSearchChange}
                 placeholder="아이템 이름이나 다른 이름(예: 똥신)으로 검색"
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -700,6 +708,7 @@ const App: React.FC = () => {
                   key={tag}
                   className={`filter-button ${activeFilter.type === 'category' && activeFilter.value === tag ? 'active' : ''}`}
                   onClick={() => handleCategoryButtonClick(tag)}
+                  disabled={isLoading}
                 >
                   {categoryTranslation[tag]}
                 </button>
@@ -714,6 +723,7 @@ const App: React.FC = () => {
                   key={stat}
                   className={`filter-button ${activeFilter.type === 'jack' && activeFilter.value === stat ? 'active' : ''}`}
                   onClick={() => handleJackOfAllTradesFilterClick(stat)}
+                  disabled={isLoading}
                 >
                   {statTranslation[stat]}
                 </button>
@@ -721,27 +731,34 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="item-list" ref={itemListRef}>
-            {filterItems(
-              filterItemsBySearch(items, searchQuery)
-            ).map(([id, item]) => (
-              <div
-                key={id}
-                className="item"
-                onClick={() => handleItemClick(id)}
-                onMouseEnter={(e) => handleItemMouseEnter(id, e)}
-                onMouseLeave={handleItemMouseLeave}
-              >
-                <img
-                  src={`https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${id}.png`}
-                  alt={item.name}
-                />
-                {hoveredItem === id && (
-                  <Overlay position={overlayPosition}>
-                    {renderOverlayContent(id)}
-                  </Overlay>
-                )}
+            {isLoading ? (
+              <div className="loading-container">
+                <div className="loading-indicator"></div>
+                <p className="loading-text">아이템을 불러오는 중...</p>
               </div>
-            ))}
+            ) : (
+              filterItems(
+                filterItemsBySearch(items, searchQuery)
+              ).map(([id, item]) => (
+                <div
+                  key={id}
+                  className="item"
+                  onClick={() => handleItemClick(id)}
+                  onMouseEnter={(e) => handleItemMouseEnter(id, e)}
+                  onMouseLeave={handleItemMouseLeave}
+                >
+                  <img
+                    src={`https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${id}.png`}
+                    alt={item.name}
+                  />
+                  {hoveredItem === id && (
+                    <Overlay position={overlayPosition}>
+                      {renderOverlayContent(id)}
+                    </Overlay>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
