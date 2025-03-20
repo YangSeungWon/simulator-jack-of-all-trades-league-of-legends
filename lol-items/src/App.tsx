@@ -233,6 +233,10 @@ const App: React.FC = () => {
     setItems((prevItems) => prevItems.filter(([itemId]) => itemId !== id));
   };
 
+  const removeItem320000 = () => {
+    setItems((prevItems) => prevItems.filter(([itemId]) => parseInt(itemId) < 320000));
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setDebug(params.get('debug') === 'true');
@@ -252,6 +256,8 @@ const App: React.FC = () => {
         removeItemById('1105');
         removeItemById('1106');
         removeItemById('1107');
+
+        removeItem320000();
       } catch (error) {
         console.error('Error fetching version:', error);
       }
